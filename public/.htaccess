@@ -1,0 +1,32 @@
+# Ensure correct MIME types for modern assets on Apache/Hostinger
+<IfModule mod_mime.c>
+  # ESM modules
+  AddType text/javascript .mjs
+  AddType application/javascript .js
+
+  # WebAssembly (if any)
+  AddType application/wasm .wasm
+</IfModule>
+
+# Allow cross-origin for workers if you ever serve from a subdomain
+<IfModule mod_headers.c>
+  Header set Access-Control-Allow-Origin "*"
+</IfModule>
+
+# Single Page App routing: send non-file routes to index.html
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # If the requested path is a real file or directory, serve it
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Otherwise, serve index.html so client-side routing can handle it
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# On some Apache setups, FallbackResource is simpler; keep as a no-op if unavailable
+<IfModule mod_dir.c>
+  DirectoryIndex index.html
+</IfModule>
